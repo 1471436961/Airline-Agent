@@ -1,0 +1,2424 @@
+{
+  "openapi": "3.1.0",
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "info": {
+    "title": "Customer Service API",
+    "version": "3.1.0",
+    "description": "REST API for programmatic access to customer service business resources. All operations exchange JSON over HTTPS."
+  },
+  "paths": {
+    "/v1/customers/{customer_id}": {
+      "get": {
+        "operationId": "getCustomer",
+        "summary": "Get a customer",
+        "description": "Return one airline customer, including reservations and payment methods.",
+        "x-api-mutates-state": false,
+        "x-api-idempotency": "safe",
+        "x-api-automatic-retries": "allowed",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "customer_id": {
+                      "title": "Customer Id",
+                      "type": "string"
+                    },
+                    "name": {
+                      "$ref": "#/components/schemas/Name"
+                    },
+                    "address": {
+                      "$ref": "#/components/schemas/Address"
+                    },
+                    "email": {
+                      "title": "Email",
+                      "type": "string"
+                    },
+                    "dob": {
+                      "title": "Dob",
+                      "type": "string"
+                    },
+                    "payment_methods": {
+                      "items": {
+                        "anyOf": [
+                          {
+                            "$ref": "#/components/schemas/CreditCard"
+                          },
+                          {
+                            "$ref": "#/components/schemas/GiftCard"
+                          },
+                          {
+                            "$ref": "#/components/schemas/Certificate"
+                          }
+                        ]
+                      },
+                      "title": "Payment Methods",
+                      "type": "array"
+                    },
+                    "saved_passengers": {
+                      "items": {
+                        "$ref": "#/components/schemas/Passenger"
+                      },
+                      "title": "Saved Passengers",
+                      "type": "array"
+                    },
+                    "membership": {
+                      "enum": [
+                        "gold",
+                        "silver",
+                        "regular"
+                      ],
+                      "title": "Membership",
+                      "type": "string"
+                    },
+                    "reservation_ids": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "title": "Reservation Ids",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "customer_id",
+                    "name",
+                    "address",
+                    "email",
+                    "dob",
+                    "payment_methods",
+                    "saved_passengers",
+                    "membership",
+                    "reservation_ids"
+                  ],
+                  "title": "Customer",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      }
+    },
+    "/v1/customers/{customer_id}/certificates": {
+      "post": {
+        "operationId": "createCustomerCertificate",
+        "summary": "Create a customer certificate",
+        "description": "Issue a travel certificate with a server-owned identifier to one customer.",
+        "x-api-mutates-state": true,
+        "x-api-idempotency": "not_guaranteed",
+        "x-api-automatic-retries": "forbidden",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "certificate_id": {
+                      "title": "Certificate Id",
+                      "type": "string"
+                    },
+                    "customer_id": {
+                      "title": "Customer Id",
+                      "type": "string"
+                    },
+                    "amount": {
+                      "title": "Amount",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "certificate_id",
+                    "customer_id",
+                    "amount"
+                  ],
+                  "title": "CertificateResult",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "amount": {
+                    "exclusiveMinimum": 0,
+                    "title": "Amount",
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "amount"
+                ],
+                "title": "CertificateRequest",
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/airports": {
+      "get": {
+        "operationId": "listAirports",
+        "summary": "List airports",
+        "description": "Return the airports supported by the airline.",
+        "x-api-mutates-state": false,
+        "x-api-idempotency": "safe",
+        "x-api-automatic-retries": "allowed",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "airports": {
+                      "items": {
+                        "$ref": "#/components/schemas/AirportCode"
+                      },
+                      "title": "Airports",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "airports"
+                  ],
+                  "title": "AirportCollection",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/flight-itineraries": {
+      "get": {
+        "operationId": "searchFlightItineraries",
+        "summary": "Search flight itineraries",
+        "description": "Search itineraries for an origin, destination, departure date, and requested stop count.",
+        "x-api-mutates-state": false,
+        "x-api-idempotency": "safe",
+        "x-api-automatic-retries": "allowed",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "itineraries": {
+                      "items": {
+                        "$ref": "#/components/schemas/Itinerary"
+                      },
+                      "title": "Itineraries",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "itineraries"
+                  ],
+                  "title": "ItineraryCollection",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "origin",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 3,
+              "minLength": 3,
+              "title": "Origin",
+              "type": "string"
+            }
+          },
+          {
+            "name": "destination",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "maxLength": 3,
+              "minLength": 3,
+              "title": "Destination",
+              "type": "string"
+            }
+          },
+          {
+            "name": "departure_date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "title": "Departure Date",
+              "type": "string"
+            }
+          },
+          {
+            "name": "stops",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                0,
+                1
+              ],
+              "title": "Stops",
+              "type": "integer"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/flights/{flight_number}/instances/{date}": {
+      "get": {
+        "operationId": "getFlightInstance",
+        "summary": "Get a flight instance",
+        "description": "Return the operating status of one flight on one date.",
+        "x-api-mutates-state": false,
+        "x-api-idempotency": "safe",
+        "x-api-automatic-retries": "allowed",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "flight_number": {
+                      "title": "Flight Number",
+                      "type": "string"
+                    },
+                    "date": {
+                      "title": "Date",
+                      "type": "string"
+                    },
+                    "status": {
+                      "enum": [
+                        "available",
+                        "on time",
+                        "flying",
+                        "landed",
+                        "cancelled",
+                        "delayed"
+                      ],
+                      "title": "Status",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "flight_number",
+                    "date",
+                    "status"
+                  ],
+                  "title": "FlightInstanceStatus",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "flight_number",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      }
+    },
+    "/v1/reservations": {
+      "post": {
+        "operationId": "createReservation",
+        "summary": "Create a reservation",
+        "description": "Create and pay for a reservation using the complete selected itinerary, passengers, baggage, and insurance.",
+        "x-api-mutates-state": true,
+        "x-api-idempotency": "not_guaranteed",
+        "x-api-automatic-retries": "forbidden",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "reservation_id": {
+                      "title": "Reservation Id",
+                      "type": "string"
+                    },
+                    "customer_id": {
+                      "title": "Customer Id",
+                      "type": "string"
+                    },
+                    "trip": {
+                      "$ref": "#/components/schemas/ReservationTrip"
+                    },
+                    "passengers": {
+                      "items": {
+                        "$ref": "#/components/schemas/Passenger"
+                      },
+                      "title": "Passengers",
+                      "type": "array"
+                    },
+                    "payments": {
+                      "items": {
+                        "$ref": "#/components/schemas/Payment"
+                      },
+                      "title": "Payments",
+                      "type": "array"
+                    },
+                    "created_at": {
+                      "title": "Created At",
+                      "type": "string"
+                    },
+                    "baggage": {
+                      "$ref": "#/components/schemas/BaggageSelection"
+                    },
+                    "insurance": {
+                      "enum": [
+                        "yes",
+                        "no"
+                      ],
+                      "title": "Insurance",
+                      "type": "string"
+                    },
+                    "status": {
+                      "anyOf": [
+                        {
+                          "const": "cancelled",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Status"
+                    }
+                  },
+                  "required": [
+                    "reservation_id",
+                    "customer_id",
+                    "trip",
+                    "passengers",
+                    "payments",
+                    "created_at",
+                    "baggage",
+                    "insurance"
+                  ],
+                  "title": "Reservation",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "customer_id": {
+                    "minLength": 1,
+                    "title": "Customer Id",
+                    "type": "string"
+                  },
+                  "trip": {
+                    "$ref": "#/components/schemas/TripRequest"
+                  },
+                  "passengers": {
+                    "items": {
+                      "$ref": "#/components/schemas/Passenger"
+                    },
+                    "minItems": 1,
+                    "title": "Passengers",
+                    "type": "array"
+                  },
+                  "payment_methods": {
+                    "items": {
+                      "$ref": "#/components/schemas/Payment"
+                    },
+                    "title": "Payment Methods",
+                    "type": "array"
+                  },
+                  "baggage": {
+                    "$ref": "#/components/schemas/BaggageSelection"
+                  },
+                  "insurance": {
+                    "enum": [
+                      "yes",
+                      "no"
+                    ],
+                    "title": "Insurance",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "customer_id",
+                  "trip",
+                  "passengers",
+                  "payment_methods",
+                  "baggage",
+                  "insurance"
+                ],
+                "title": "ReservationRequest",
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/reservations/{reservation_id}": {
+      "get": {
+        "operationId": "getReservation",
+        "summary": "Get a reservation",
+        "description": "Return one reservation and its current itinerary, passengers, baggage, and payments.",
+        "x-api-mutates-state": false,
+        "x-api-idempotency": "safe",
+        "x-api-automatic-retries": "allowed",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "reservation_id": {
+                      "title": "Reservation Id",
+                      "type": "string"
+                    },
+                    "customer_id": {
+                      "title": "Customer Id",
+                      "type": "string"
+                    },
+                    "trip": {
+                      "$ref": "#/components/schemas/ReservationTrip"
+                    },
+                    "passengers": {
+                      "items": {
+                        "$ref": "#/components/schemas/Passenger"
+                      },
+                      "title": "Passengers",
+                      "type": "array"
+                    },
+                    "payments": {
+                      "items": {
+                        "$ref": "#/components/schemas/Payment"
+                      },
+                      "title": "Payments",
+                      "type": "array"
+                    },
+                    "created_at": {
+                      "title": "Created At",
+                      "type": "string"
+                    },
+                    "baggage": {
+                      "$ref": "#/components/schemas/BaggageSelection"
+                    },
+                    "insurance": {
+                      "enum": [
+                        "yes",
+                        "no"
+                      ],
+                      "title": "Insurance",
+                      "type": "string"
+                    },
+                    "status": {
+                      "anyOf": [
+                        {
+                          "const": "cancelled",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Status"
+                    }
+                  },
+                  "required": [
+                    "reservation_id",
+                    "customer_id",
+                    "trip",
+                    "passengers",
+                    "payments",
+                    "created_at",
+                    "baggage",
+                    "insurance"
+                  ],
+                  "title": "Reservation",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      }
+    },
+    "/v1/reservations/{reservation_id}/cancellations": {
+      "post": {
+        "operationId": "createReservationCancellation",
+        "summary": "Cancel a reservation",
+        "description": "Create a cancellation for one reservation.",
+        "x-api-mutates-state": true,
+        "x-api-idempotency": "not_guaranteed",
+        "x-api-automatic-retries": "forbidden",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "reservation_id": {
+                      "title": "Reservation Id",
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "cancelled",
+                      "title": "Status",
+                      "type": "string"
+                    },
+                    "payments": {
+                      "items": {
+                        "$ref": "#/components/schemas/Payment"
+                      },
+                      "title": "Payments",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "reservation_id",
+                    "status",
+                    "payments"
+                  ],
+                  "title": "ReservationCancellationResult",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      }
+    },
+    "/v1/reservations/{reservation_id}/baggage": {
+      "put": {
+        "operationId": "replaceReservationBaggage",
+        "summary": "Replace reservation baggage",
+        "description": "Replace the complete baggage selection for one reservation.",
+        "x-api-mutates-state": true,
+        "x-api-idempotency": "not_guaranteed",
+        "x-api-automatic-retries": "forbidden",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "reservation_id": {
+                      "title": "Reservation Id",
+                      "type": "string"
+                    },
+                    "baggage": {
+                      "$ref": "#/components/schemas/BaggageSelection"
+                    },
+                    "payments": {
+                      "items": {
+                        "$ref": "#/components/schemas/Payment"
+                      },
+                      "title": "Payments",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "reservation_id",
+                    "baggage",
+                    "payments"
+                  ],
+                  "title": "ReservationBaggageResult",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "total_bags": {
+                    "minimum": 0,
+                    "title": "Total Bags",
+                    "type": "integer"
+                  },
+                  "paid_bags": {
+                    "minimum": 0,
+                    "title": "Paid Bags",
+                    "type": "integer"
+                  },
+                  "payment_method_id": {
+                    "minLength": 1,
+                    "title": "Payment Method Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "total_bags",
+                  "paid_bags",
+                  "payment_method_id"
+                ],
+                "title": "BaggageUpdateRequest",
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/reservations/{reservation_id}/itinerary": {
+      "put": {
+        "operationId": "replaceReservationItinerary",
+        "summary": "Replace a reservation itinerary",
+        "description": "Replace the complete itinerary and cabin for one reservation.",
+        "x-api-mutates-state": true,
+        "x-api-idempotency": "not_guaranteed",
+        "x-api-automatic-retries": "forbidden",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "reservation_id": {
+                      "title": "Reservation Id",
+                      "type": "string"
+                    },
+                    "trip": {
+                      "$ref": "#/components/schemas/ReservationTrip"
+                    },
+                    "payments": {
+                      "items": {
+                        "$ref": "#/components/schemas/Payment"
+                      },
+                      "title": "Payments",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "reservation_id",
+                    "trip",
+                    "payments"
+                  ],
+                  "title": "ReservationItineraryResult",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "cabin": {
+                    "enum": [
+                      "business",
+                      "economy",
+                      "basic_economy"
+                    ],
+                    "title": "Cabin",
+                    "type": "string"
+                  },
+                  "segments": {
+                    "items": {
+                      "$ref": "#/components/schemas/FlightInfo"
+                    },
+                    "minItems": 1,
+                    "title": "Segments",
+                    "type": "array"
+                  },
+                  "payment_method_id": {
+                    "minLength": 1,
+                    "title": "Payment Method Id",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "cabin",
+                  "segments",
+                  "payment_method_id"
+                ],
+                "title": "ItineraryUpdateRequest",
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/reservations/{reservation_id}/passengers": {
+      "put": {
+        "operationId": "replaceReservationPassengers",
+        "summary": "Replace reservation passengers",
+        "description": "Replace the complete passenger details for one reservation.",
+        "x-api-mutates-state": true,
+        "x-api-idempotency": "not_guaranteed",
+        "x-api-automatic-retries": "forbidden",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "reservation_id": {
+                      "title": "Reservation Id",
+                      "type": "string"
+                    },
+                    "passengers": {
+                      "items": {
+                        "$ref": "#/components/schemas/Passenger"
+                      },
+                      "title": "Passengers",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "reservation_id",
+                    "passengers"
+                  ],
+                  "title": "ReservationPassengersResult",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "reservation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "passengers": {
+                    "items": {
+                      "$ref": "#/components/schemas/Passenger"
+                    },
+                    "minItems": 1,
+                    "title": "Passengers",
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "passengers"
+                ],
+                "title": "PassengerUpdateRequest",
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/conversations/{conversation_id}/transfers": {
+      "post": {
+        "operationId": "createConversationTransfer",
+        "summary": "Transfer a conversation to a human agent",
+        "description": "Create a live transfer of one active conversation to a human support agent. The conversation transcript and routing context are attached automatically.",
+        "x-api-mutates-state": true,
+        "x-api-idempotency": "not_guaranteed",
+        "x-api-automatic-retries": "forbidden",
+        "x-api-consistency": "strong",
+        "x-api-pagination": "none",
+        "x-api-request-body-max-bytes": 1048576,
+        "x-api-response-body-max-bytes": 4194304,
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "description": "Accepted live-transfer resource.",
+                  "properties": {
+                    "transfer_id": {
+                      "minLength": 1,
+                      "title": "Transfer Id",
+                      "type": "string"
+                    },
+                    "status": {
+                      "const": "accepted",
+                      "title": "Status",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "transfer_id",
+                    "status"
+                  ],
+                  "title": "ConversationTransferReceipt",
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request does not match the operation schema",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "HTTP method not allowed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The resource's current state prevents the operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "JSON request query and body exceed the byte limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "The request violates a business constraint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The service produced an invalid or oversized JSON response body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIError"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "description": "Request to transfer an active conversation to a human agent.",
+                "properties": {
+                  "summary": {
+                    "minLength": 1,
+                    "title": "Summary",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "summary"
+                ],
+                "title": "ConversationTransferRequest",
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "APIError": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "details": {}
+            }
+          }
+        }
+      },
+      "Address": {
+        "additionalProperties": false,
+        "properties": {
+          "address_line_1": {
+            "title": "Address Line 1",
+            "type": "string"
+          },
+          "address_line_2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Address Line 2"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          },
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "region": {
+            "title": "Region",
+            "type": "string"
+          },
+          "postal_code": {
+            "title": "Postal Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "address_line_1",
+          "city",
+          "country",
+          "region",
+          "postal_code"
+        ],
+        "title": "Address",
+        "type": "object"
+      },
+      "Certificate": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "const": "certificate",
+            "title": "Source",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "number"
+          }
+        },
+        "required": [
+          "source",
+          "id",
+          "amount"
+        ],
+        "title": "Certificate",
+        "type": "object"
+      },
+      "CreditCard": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "const": "credit_card",
+            "title": "Source",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "brand": {
+            "title": "Brand",
+            "type": "string"
+          },
+          "last_four": {
+            "title": "Last Four",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "id",
+          "brand",
+          "last_four"
+        ],
+        "title": "CreditCard",
+        "type": "object"
+      },
+      "GiftCard": {
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "const": "gift_card",
+            "title": "Source",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "number"
+          }
+        },
+        "required": [
+          "source",
+          "id",
+          "amount"
+        ],
+        "title": "GiftCard",
+        "type": "object"
+      },
+      "Name": {
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "title": "First Name",
+            "type": "string"
+          },
+          "last_name": {
+            "title": "Last Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "first_name",
+          "last_name"
+        ],
+        "title": "Name",
+        "type": "object"
+      },
+      "Passenger": {
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "title": "First Name",
+            "type": "string"
+          },
+          "last_name": {
+            "title": "Last Name",
+            "type": "string"
+          },
+          "dob": {
+            "title": "Dob",
+            "type": "string"
+          }
+        },
+        "required": [
+          "first_name",
+          "last_name",
+          "dob"
+        ],
+        "title": "Passenger",
+        "type": "object"
+      },
+      "AirportCode": {
+        "additionalProperties": false,
+        "properties": {
+          "iata": {
+            "title": "Iata",
+            "type": "string"
+          },
+          "city": {
+            "title": "City",
+            "type": "string"
+          }
+        },
+        "required": [
+          "iata",
+          "city"
+        ],
+        "title": "AirportCode",
+        "type": "object"
+      },
+      "CabinOffer": {
+        "additionalProperties": false,
+        "properties": {
+          "cabin": {
+            "enum": [
+              "business",
+              "economy",
+              "basic_economy"
+            ],
+            "title": "Cabin",
+            "type": "string"
+          },
+          "available_seats": {
+            "title": "Available Seats",
+            "type": "integer"
+          },
+          "price": {
+            "title": "Price",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "cabin",
+          "available_seats",
+          "price"
+        ],
+        "title": "CabinOffer",
+        "type": "object"
+      },
+      "FlightSegment": {
+        "additionalProperties": false,
+        "properties": {
+          "flight_number": {
+            "title": "Flight Number",
+            "type": "string"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "destination": {
+            "title": "Destination",
+            "type": "string"
+          },
+          "status": {
+            "const": "available",
+            "title": "Status",
+            "type": "string"
+          },
+          "scheduled_departure_time_est": {
+            "title": "Scheduled Departure Time Est",
+            "type": "string"
+          },
+          "scheduled_arrival_time_est": {
+            "title": "Scheduled Arrival Time Est",
+            "type": "string"
+          },
+          "departure_date": {
+            "title": "Departure Date",
+            "type": "string"
+          },
+          "cabin_offers": {
+            "items": {
+              "$ref": "#/components/schemas/CabinOffer"
+            },
+            "title": "Cabin Offers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "flight_number",
+          "origin",
+          "destination",
+          "status",
+          "scheduled_departure_time_est",
+          "scheduled_arrival_time_est",
+          "departure_date",
+          "cabin_offers"
+        ],
+        "title": "FlightSegment",
+        "type": "object"
+      },
+      "Itinerary": {
+        "additionalProperties": false,
+        "properties": {
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/FlightSegment"
+            },
+            "minItems": 1,
+            "title": "Segments",
+            "type": "array"
+          }
+        },
+        "required": [
+          "segments"
+        ],
+        "title": "Itinerary",
+        "type": "object"
+      },
+      "BaggageSelection": {
+        "additionalProperties": false,
+        "properties": {
+          "total_bags": {
+            "minimum": 0,
+            "title": "Total Bags",
+            "type": "integer"
+          },
+          "paid_bags": {
+            "minimum": 0,
+            "title": "Paid Bags",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_bags",
+          "paid_bags"
+        ],
+        "title": "BaggageSelection",
+        "type": "object"
+      },
+      "Payment": {
+        "additionalProperties": false,
+        "properties": {
+          "payment_id": {
+            "title": "Payment Id",
+            "type": "string"
+          },
+          "amount": {
+            "title": "Amount",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "payment_id",
+          "amount"
+        ],
+        "title": "Payment",
+        "type": "object"
+      },
+      "ReservationSegment": {
+        "additionalProperties": false,
+        "properties": {
+          "flight_number": {
+            "title": "Flight Number",
+            "type": "string"
+          },
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "destination": {
+            "title": "Destination",
+            "type": "string"
+          },
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "price": {
+            "title": "Price",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "flight_number",
+          "origin",
+          "destination",
+          "date",
+          "price"
+        ],
+        "title": "ReservationSegment",
+        "type": "object"
+      },
+      "ReservationTrip": {
+        "additionalProperties": false,
+        "properties": {
+          "origin": {
+            "title": "Origin",
+            "type": "string"
+          },
+          "destination": {
+            "title": "Destination",
+            "type": "string"
+          },
+          "trip_type": {
+            "enum": [
+              "round_trip",
+              "one_way"
+            ],
+            "title": "Trip Type",
+            "type": "string"
+          },
+          "cabin": {
+            "enum": [
+              "business",
+              "economy",
+              "basic_economy"
+            ],
+            "title": "Cabin",
+            "type": "string"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/ReservationSegment"
+            },
+            "title": "Segments",
+            "type": "array"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "trip_type",
+          "cabin",
+          "segments"
+        ],
+        "title": "ReservationTrip",
+        "type": "object"
+      },
+      "FlightInfo": {
+        "additionalProperties": false,
+        "properties": {
+          "flight_number": {
+            "title": "Flight Number",
+            "type": "string"
+          },
+          "date": {
+            "minLength": 1,
+            "title": "Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "flight_number",
+          "date"
+        ],
+        "title": "FlightInfo",
+        "type": "object"
+      },
+      "TripRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "origin": {
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Origin",
+            "type": "string"
+          },
+          "destination": {
+            "maxLength": 3,
+            "minLength": 3,
+            "title": "Destination",
+            "type": "string"
+          },
+          "trip_type": {
+            "enum": [
+              "round_trip",
+              "one_way"
+            ],
+            "title": "Trip Type",
+            "type": "string"
+          },
+          "cabin": {
+            "enum": [
+              "business",
+              "economy",
+              "basic_economy"
+            ],
+            "title": "Cabin",
+            "type": "string"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/FlightInfo"
+            },
+            "minItems": 1,
+            "title": "Segments",
+            "type": "array"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "trip_type",
+          "cabin",
+          "segments"
+        ],
+        "title": "TripRequest",
+        "type": "object"
+      }
+    }
+  },
+  "x-classroom-mode": "predeployed-capabilities-v1",
+  "x-enabled-capabilities": [
+    "airline_reservation_cancellation_v1"
+  ]
+}

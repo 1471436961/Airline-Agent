@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "booking_search": {
+    "origin": "ORD",
+    "destination": "PHL",
+    "departure_date": "2024-05-26",
+    "stops": 0,
+    "cabin": "economy"
+  },
+  "cases": [
+    {
+      "id": "economy_reservation",
+      "description": "Uninsured one-way economy reservation.",
+      "customer_id": "developer_traveler_9001",
+      "email": "economy.traveler@example.test",
+      "reservation_id": "DV9E01",
+      "credit_card_id": "credit_card_9000001",
+      "gift_card_id": "gift_card_9000002",
+      "certificate_id": "certificate_9000003"
+    },
+    {
+      "id": "basic_economy_reservation",
+      "description": "Uninsured one-way basic-economy reservation.",
+      "customer_id": "developer_traveler_9002",
+      "email": "basic.traveler@example.test",
+      "reservation_id": "DV9B02",
+      "credit_card_id": "credit_card_9000011",
+      "gift_card_id": "gift_card_9000012",
+      "certificate_id": "certificate_9000013"
+    },
+    {
+      "id": "insured_round_trip",
+      "description": "Insured round-trip economy reservation for a gold member.",
+      "customer_id": "developer_traveler_9003",
+      "email": "insured.traveler@example.test",
+      "reservation_id": "DV9R03",
+      "credit_card_id": "credit_card_9000021",
+      "gift_card_id": "gift_card_9000022",
+      "certificate_id": "certificate_9000023"
+    }
+  ]
+}
